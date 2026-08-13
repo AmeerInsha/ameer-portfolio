@@ -1,0 +1,36 @@
+AMEER PORTFOLIO — V16 PRODUCTION BUILD
+
+STATUS
+- Public portfolio: included
+- Private /admin/: included
+- Supabase dynamic content: included
+- Services: dynamic
+- Projects: dynamic with rich design preserved
+- Experience: dynamic
+- Education: dynamic
+- Research: dynamic
+- Skills: dynamic
+- Credentials: dynamic
+- Profile/Hero: dynamic
+- Request Service -> Leads: included
+- Media Library / Choose from Media: included
+- Mobile responsive frontend: preserved from stable baseline
+
+SECURITY CHECK
+- Service-role key in browser files: No
+- Secret key pattern in browser files: No
+- Localhost references: No
+- Supabase publishable browser config: Present
+
+DEPLOYMENT CONTENT
+Upload the CONTENTS of this folder to the hosting project/repository.
+Do not upload old phase SQL files or test ZIPs.
+
+AFTER LIVE URL EXISTS
+1. Test public Home.
+2. Test /admin/ login.
+3. Edit one harmless field, save, refresh public site, then revert it.
+4. Submit a TEST Request Service lead and delete it from Admin.
+5. Upload/delete a TEST media file.
+6. Test mobile viewport.
+7. Send the final live URL back to ChatGPT so robots/sitemap/canonical/share metadata can be finalized.

@@ -1,0 +1,13 @@
+NEXT STEP
+
+This folder is now the deployment package.
+
+Recommended free path:
+1. Put these files in a GitHub repository.
+2. Connect the repository to Cloudflare Pages.
+3. No build command is required for this static site.
+4. Deploy.
+5. Open the generated *.pages.dev URL.
+6. Test /admin/ and the public site.
+
+Do not change Supabase database or RLS at this step.
