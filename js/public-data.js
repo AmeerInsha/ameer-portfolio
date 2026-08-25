@@ -216,40 +216,7 @@ const imageUrl = resolveMediaUrl(row.image_url);
       if (error) console.warn('Projects fallback:',error.message);
       return;
     }
-    console.log('SEO REACHED', data);
-   // Dynamic SEO schema for all published projects
-try {
-  let schema = document.querySelector('#projects-jsonld');
-
-if (!schema) {
-  schema = document.createElement('script');
-  schema.id = 'projects-jsonld';
-  schema.type = 'application/ld+json';
-  document.head.appendChild(schema);
-}
-
-  schema.textContent = JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    "name": "Ameer Insha Projects",
-    "itemListElement": data.map((row, index) => ({
-      "@type": "ListItem",
-      "position": index + 1,
-      "item": {
-        "@type": "CreativeWork",
-        "name": row.title || "Project",
-        "description": row.description || "",
-        "url": row.case_study_url || row.project_url || ""
-      }
-    }))
-  });
-
-  console.log('SEO SCHEMA ADDED', schema);
-
-} catch (e) {
-  console.error('SEO SCHEMA ERROR:', e);
-}
-
+ 
     const rowMap = new Map();
     data.forEach(row => {
       const key = projectRowKey(row);
