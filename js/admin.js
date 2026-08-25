@@ -81,7 +81,7 @@ function safeFileName(name='file'){
 
 function mediaType(path=''){
   const p=path.toLowerCase();
-  if(/\.(png|jpe?g|webp|svg)$/.test(p)) return 'image';
+  if(/\.(png|jpe?g|jfif|webp|svg)$/.test(p)) return 'image';
   if(/\.(mp3|ogg|wav|m4a)$/.test(p)) return 'audio';
   if(/\.pdf$/.test(p)) return 'pdf';
   return 'file';
@@ -123,7 +123,7 @@ async function loadMedia(){
           <select id="mediaFolder">${MEDIA_FOLDERS.map(f=>`<option value="${f}">${f}</option>`).join('')}</select>
         </label>
         <label>Choose file
-          <input id="mediaFile" type="file" accept="image/jpeg,image/png,image/webp,image/svg+xml,application/pdf,audio/mpeg,audio/ogg,audio/wav,audio/mp4">
+        <input id="mediaFile" type="file" accept="image/jpeg,image/jfif,image/png,image/webp,image/svg+xml,application/pdf,audio/mpeg,audio/ogg,audio/wav,audio/mp4">
         </label>
         <button id="mediaUpload" class="primary">Upload</button>
         <div id="mediaUploadStatus" class="muted"></div>
@@ -222,7 +222,7 @@ const MEDIA_PICKER_FIELDS = new Set([
 ]);
 
 function storageValue(path){
-  return path ? `storage:${path}` : '';
+ return path ? `storage:portfolio-media/${path}` : '';
 }
 
 async function chooseFromMedia(targetInput, preferredFolder=''){

@@ -72,13 +72,22 @@ if (!cfg.url || !cfg.publishableKey) {
     if (t.includes('tipu foods') || t.includes('tipu burger') || t.includes('tipu')) return 'tipu';
     if (t.includes('gibtek')) return 'gibtek';
     if (t.includes('desire by amal')) return 'desire';
+    if (t.includes('delizia')) return 'delizia';
     if (t.includes('sap business') || t.includes('sap')) return 'sap';
     return '';
   }
 
   function projectRowKey(row) {
-    return projectKeyFromText([row.title,row.client,row.role,row.category].filter(Boolean).join(' '));
-  }
+  const knownKey = projectKeyFromText(
+    [row.title, row.client, row.role, row.category]
+      .filter(Boolean)
+      .join(' ')
+  );
+
+  if (knownKey) return knownKey;
+
+  return row.id ? `db-${row.id}` : '';
+}
 
   function findRichProjectCards() {
     const root = document.querySelector('#projects') || document;
@@ -132,7 +141,73 @@ if (!cfg.url || !cfg.publishableKey) {
     card.dataset.source='supabase';
     card.dataset.projectId=row.id||'';
   }
+  function resolveMediaUrl(value = '') {
+  if (!value) return '';
 
+  if (value.startsWith('http://') || value.startsWith('https://')) {
+    return value;
+  }
+
+  if (value.startsWith('storage:')) {
+    let path = value.slice('storage:'.length);
+
+    if (path.startsWith('portfolio-media/')) {
+      path = path.slice('portfolio-media/'.length);
+    }
+
+    const { data } = supabase.storage
+      .from('portfolio-media')
+      .getPublicUrl(path);
+
+    return data?.publicUrl || '';
+  }
+
+  return value;
+}
+function createProjectCard(row) {
+  const card = document.createElement('article');
+  card.className = 'project-card dynamic-project-card';
+  card.dataset.source = 'supabase';
+  card.dataset.projectId = row.id || '';
+
+  const title = row.title || 'Project';
+  const meta = [row.client, row.role].filter(Boolean).join(' · ');
+  const description = row.description || '';
+  const url = row.project_url || row.case_study_url || '';
+const imageUrl = resolveMediaUrl(row.image_url);
+  card.innerHTML = `
+    <div class="project-header">
+      <div class="project-icon logo-project-icon">
+  ${
+    imageUrl
+   ? `<img src="${imageUrl}" alt="${title} logo" loading="lazy" decoding="async">`
+      : `<span aria-hidden="true">↗</span>`
+  }
+</div>
+      ${url ? `
+        <a class="project-link"
+           href="${url}"
+           target="_blank"
+           rel="noopener noreferrer"
+           title="View ${title}">
+          ↗
+        </a>` : ''}
+    </div>
+
+    <div class="project-title">${title}</div>
+    <div class="project-meta">${meta}</div>
+
+    <div class="project-body">
+      <p>${description}</p>
+    </div>
+
+    <div class="project-tags">
+      ${row.category ? `<span class="project-tag">${row.category}</span>` : ''}
+    </div>
+  `;
+
+  return card;
+}
   async function hydrateProjects() {
     const { data, error } = await supabase.from('projects')
       .select('id,title,description,category,client,role,image_url,project_url,case_study_url,featured,published,sort_order')
@@ -141,15 +216,70 @@ if (!cfg.url || !cfg.publishableKey) {
       if (error) console.warn('Projects fallback:',error.message);
       return;
     }
+    console.log('SEO REACHED', data);
+   // Dynamic SEO schema for all published projects
+try {
+  let schema = document.querySelector('#projects-jsonld');
+
+if (!schema) {
+  schema = document.createElement('script');
+  schema.id = 'projects-jsonld';
+  schema.type = 'application/ld+json';
+  document.head.appendChild(schema);
+}
+
+  schema.textContent = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Ameer Insha Projects",
+    "itemListElement": data.map((row, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "CreativeWork",
+        "name": row.title || "Project",
+        "description": row.description || "",
+        "url": row.case_study_url || row.project_url || ""
+      }
+    }))
+  });
+
+  console.log('SEO SCHEMA ADDED', schema);
+
+} catch (e) {
+  console.error('SEO SCHEMA ERROR:', e);
+}
+
     const rowMap = new Map();
     data.forEach(row => {
       const key = projectRowKey(row);
       if (key) rowMap.set(key,row);
     });
-    findRichProjectCards().forEach(card => {
-      const row = rowMap.get(projectKeyFromText(card.textContent));
-      if (row) updateProjectCard(card,row);
-    });
+   const renderedKeys = new Set();
+
+findRichProjectCards().forEach(card => {
+  const key = projectKeyFromText(card.textContent);
+  const row = rowMap.get(key);
+
+  if (row) {
+    updateProjectCard(card, row);
+    renderedKeys.add(key);
+  }
+});
+
+const grid = document.querySelector('#projects .projects-grid');
+
+if (grid) {
+  data.forEach(row => {
+    const key = projectRowKey(row);
+
+    if (!key || renderedKeys.has(key)) return;
+
+    grid.appendChild(createProjectCard(row));
+    renderedKeys.add(key);
+  });
+}
+ 
   }
 
   /* ---------------- EXPERIENCE ----------------
